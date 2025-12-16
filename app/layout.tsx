@@ -15,10 +15,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// export const metadata: Metadata = {
-//   title: "PG Delivery Store",
-//   description: "Fast 5-minute delivery inside PG",
-// };
 
 export default function RootLayout({
   children,
@@ -26,8 +22,6 @@ export default function RootLayout({
   children: React.ReactNode;
   
 }) {
-  // const { cart } = useCart();
-  // console.log("ROOT CART:", cart);
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
