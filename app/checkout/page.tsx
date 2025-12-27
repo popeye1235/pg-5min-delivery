@@ -8,13 +8,24 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 export default function Checkout() {
+  // ✅ ALL hooks declared first (important)
   const { cart, total, add, decrease, clear } = useCart();
   const router = useRouter();
+
+  const [mounted, setMounted] = useState(false);
 
   const [phone, setPhone] = useState("");
   const [room, setRoom] = useState("");
   const [floor, setFloor] = useState("");
   const [building, setBuilding] = useState("");
+
+  // ✅ hydration-safe mount guard
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // ✅ SAFE early return (after hooks)
+  if (!mounted) return null;
 
   const placeOrder = async () => {
     if (cart.length === 0) {
@@ -22,7 +33,7 @@ export default function Checkout() {
       router.push("/");
       return;
     }
-    
+
     if (!phone || !room || !floor || !building) {
       toast.error("Please fill all delivery details.");
       return;
@@ -33,11 +44,11 @@ export default function Checkout() {
       name: item.name,
       qty: item.qty,
       price: item.price,
-      stock: item.stock, 
+      stock: item.stock,
     }));
 
     const orderData = {
-      items: cleanItems.map(({ stock, ...rest }) => rest), 
+      items: cleanItems.map(({ stock, ...rest }) => rest),
       total,
       phone,
       room,
@@ -48,17 +59,17 @@ export default function Checkout() {
     };
 
     try {
-      // 1. Update product stock in Firestore
+      // 1️⃣ Update product stock
       for (const item of cleanItems) {
         const ref = doc(db, "products", item.id);
         const newStock = (item.stock || 0) - item.qty;
         await updateDoc(ref, { stock: newStock });
       }
 
-      // 2. Save new order to Firestore
+      // 2️⃣ Save order
       await addDoc(collection(db, "orders"), orderData);
 
-      // 3. Prepare WhatsApp message
+      // 3️⃣ Prepare WhatsApp message
       const message = `
 New Order!
 
@@ -71,21 +82,20 @@ ${cleanItems.map((c) => `${c.qty} × ${c.name} (₹${c.price})`).join("\n")}
 
 Total: ₹${total}
 `;
-      
-      // 4. Clear cart state and localStorage
-      clear(); 
 
-      // 5. FIX: Push to success page first.
+      // 4️⃣ Clear cart
+      clear();
+
+      // 5️⃣ Redirect first (important UX)
       router.push("/order/success");
-      
-      // 6. FIX: Open WhatsApp in a NEW tab so the user sees the success page.
+
+      // 6️⃣ Open WhatsApp in new tab
       window.open(
         `https://wa.me/${process.env.NEXT_PUBLIC_OWNER_WHATSAPP}?text=${encodeURIComponent(
           message
         )}`,
-        '_blank' 
+        "_blank"
       );
-
     } catch (error) {
       console.error("Error placing order:", error);
       toast.error("Failed to place order. Please try again.");
@@ -109,10 +119,11 @@ Total: ₹${total}
                 key={item.id}
                 className="flex items-center justify-between mb-3 pb-3"
               >
-                <div className="font-medium text-white min-w-[40%]">{item.name}</div>
+                <div className="font-medium text-white min-w-[40%]">
+                  {item.name}
+                </div>
 
                 <div className="flex items-center gap-2">
-                  {/* decrease */}
                   <button
                     onClick={() => decrease(item.id)}
                     className="bg-green-600 cursor-pointer hover:bg-green-950 text-white h-6 w-6 rounded-full flex items-center justify-center text-sm"
@@ -120,9 +131,10 @@ Total: ₹${total}
                     –
                   </button>
 
-                  <span className="text-white font-medium w-4 text-center">{item.qty}</span>
+                  <span className="text-white font-medium w-4 text-center">
+                    {item.qty}
+                  </span>
 
-                  {/* add */}
                   <button
                     onClick={() => add(item)}
                     className="bg-green-600 text-white h-6 w-6 rounded-full flex items-center justify-center text-sm hover:bg-green-950"
@@ -148,7 +160,10 @@ Total: ₹${total}
       </div>
 
       {/* 🌟 Delivery Details */}
-      <h2 className="font-bold text-lg mb-3 text-white">Delivery Details</h2>
+      <h2 className="font-bold text-lg mb-3 text-white">
+        Delivery Details
+      </h2>
+
       <input
         type="tel"
         placeholder="Phone Number"

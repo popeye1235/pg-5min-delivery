@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -89,8 +90,8 @@ export default function AdminPage() {
           key={o.id}
           className={`border p-3 rounded mb-4 ${
             o.status === "delivered"
-              ? "bg-green-100 border-green-400"
-              : "bg-yellow-100 border-yellow-400"
+              ? " border-green-400"
+              : " border-yellow-400"
           }`}
         >
           <p className="font-semibold">Order ID: {o.id}</p>
