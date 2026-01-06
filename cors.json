@@ -1,1 +1,22 @@
-[{"origin": ["http://localhost:3000"],"method": ["GET", "POST", "PUT", "DELETE", "HEAD"],"responseHeader": ["Content-Type"],"maxAgeSeconds": 3600}]
+[
+    {
+        "origin": [
+            "http://localhost:3000"
+            // "https://your-app-id.web.app",
+    //   "https://your-custom-domain.com"
+        ],
+        "method": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "HEAD"
+        ],
+        "responseHeader": [
+            "Content-Type"
+        ],
+        "maxAgeSeconds": 3600
+    }
+]
+
+// Note: Remember to replace the placeholder URLs with your actual frontend URLs when deploying your application.
